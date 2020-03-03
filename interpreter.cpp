@@ -1,6 +1,7 @@
 #include "interpreter.hpp"
 
 std::string ERRORTEXT[] = {
+    "incorrect start of the program",
     "entered unexisted operator",
     "error with label",
     "need to be alternation between operator and Variables or Numbers",
@@ -10,7 +11,10 @@ std::string ERRORTEXT[] = {
     "error with declaration of start variables function",
     "undefined reference to function",
     "придумать текст про if/while then else",
-    "program need function main"
+    "program need function main",
+    "problems with operator assign(:=)",
+    "work with undefined Variable",
+    "runtime error?!"
 };
 
 int PRIORITY[] = {
@@ -59,6 +63,9 @@ std::map <std::string, int> Ftable;
 std::map <std::string, std::unordered_map <std::string, int>> FstartVars;
 std::map <std::string, int> Labels;
 std::stack <int> RetAddr;
+std::stack<std::unordered_map <std::string, int>> LocTables;
+std::stack<std::string> tabStack;
+int output_lvl;
 
 Oper::Oper(int n) {
         setType(OPERATION);
@@ -108,6 +115,16 @@ int Foo::getRow() {
     }
 }
 
+void print_VarTables() {
+    while(!LocTables.empty()) {
+        tab = tabStack.top();
+        tabStack.pop();
+        print_map(LocTables.top());
+        LocTables.pop();
+        std::cout << std::endl;
+    }
+}
+
 void print(std::vector <Lexem *> array) {
     for (auto ptr: array) {
         if (ptr == nullptr) {
@@ -120,13 +137,13 @@ void print(std::vector <Lexem *> array) {
         }
         std::cout << " ";
     }
+    std::cout << std::endl;
 }
 
 void print_all(std::vector <std::vector <Lexem *>> matrix) {
     for (int free = 0; free < (int)matrix.size(); free++) {
         std::cout << free << ": ";
         print(matrix[free]);
-        std::cout << std::endl;
     }
 }
 
@@ -144,6 +161,25 @@ void del(std::vector <Lexem *> v) {
     }
 }
 
+void setOutputSettings(int argc, char **argv) {
+    int i;
+    for(i = 0; i < argc; i++) {
+        std::string check = std::string(argv[i]);
+        if(check == "output") {
+            if (argv[i + 1][0] != '=') {
+                throw(ERR_WITH_START_PROGRAM);
+            }
+            output_lvl = atoi(argv[i + 2]);
+            if (output_lvl > 4) {
+                throw(ERR_WITH_START_PROGRAM);
+            }
+            break;
+        }
+    }
+    if(i == argc) {
+        throw(ERR_WITH_START_PROGRAM);
+    }
+}
 Lexem *get_number(std::string codeline, std::string::iterator &ptr) {
     if(!isdigit(*ptr) || isspace(*ptr)) {
         return nullptr;
@@ -664,8 +700,10 @@ int evaluatePostfix(std::vector <std::vector <Lexem *>> postfixLines, int row, i
     std::stack<Lexem *> st;
     std::vector<Lexem *> free;
     std::vector<Lexem *> postfix = postfixLines[row];
-//    print(postfix);
-//    std::cout << " " << row << std::endl;
+    if (output_lvl >= 3) {
+        std::cout << row << " ---> ";
+        print(postfix);
+    }
     bool r = false;
     int ret;
     for(auto s: postfix) {
@@ -680,6 +718,7 @@ int evaluatePostfix(std::vector <std::vector <Lexem *>> postfixLines, int row, i
             RetAddr.push(row);
             int locale_row = ((Foo *)s) -> getRow();
             int ret_val;
+            tab += "\t";
             std::string Fname = ((Foo *)s) -> getName();
             std::unordered_map <std::string, int> LocTable = FstartVars[Fname];
             for (auto it = LocTable.begin();
@@ -696,8 +735,10 @@ int evaluatePostfix(std::vector <std::vector <Lexem *>> postfixLines, int row, i
                 locale_row = evaluatePostfix(postfixLines, locale_row, ret_val,
                                             r, LocTable);
             } while (r == false);
-//            print_map(LocTable);
-//            std::cout << std::endl;
+            LocTables.push(LocTable);
+            tabStack.push(tab);
+            tab.pop_back();
+            std::cout << std::endl;
             value = new Number(ret_val);
             free.push_back(value);
             st.push(value);
@@ -717,7 +758,13 @@ int evaluatePostfix(std::vector <std::vector <Lexem *>> postfixLines, int row, i
                     } else if (value -> getType() == BOOLEAN) {
                         val = ((Boolean *)value) -> getValue();
                     } else if (value -> getType() == VARIABLE) {
-                        val = ((Variable *)value) -> getValue(LocalVarTable);
+                        if (((Variable *)value) -> exist(LocalVarTable)) {
+                            val = ((Variable *)value) -> getValue(LocalVarTable);
+                        } else if (((Variable *)value) -> exist(GlobalVarTable)) {
+                            val = ((Variable *)value) -> getValue(GlobalVarTable);
+                        } else {
+                            throw(ERR_UNDEFINED_VARIABLE);
+                        }
                     }
                 }
                 if (!RetAddr.empty()) {
@@ -757,8 +804,9 @@ int evaluatePostfix(std::vector <std::vector <Lexem *>> postfixLines, int row, i
             ret = ((Number *)value) -> getValue();
         }
         val = ret;
-    } else {
-        throw(RUNTIME_ERR);
+        if(!st.empty()) {
+            throw(RUNTIME_ERR);
+        }
     }
     del(free);
     row++;

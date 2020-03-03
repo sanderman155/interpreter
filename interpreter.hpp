@@ -1,7 +1,6 @@
 #ifndef INTERP_HPP
 #define INTERP_HPP
 
-//#include "interpreter_share.hpp"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -11,6 +10,7 @@
 #include <unordered_map>
 
 enum ERRORS {
+    ERR_WITH_START_PROGRAM,
     ERR_UNDEFINED_OPERATOR,
     ERR_WITH_GOTO_OR_LABELS,
     NO_ALTERATION,
@@ -23,8 +23,8 @@ enum ERRORS {
     ERR_WITH_START,
     ERR_WITH_ASSIGN,
     ERR_UNDEFINED_VARIABLE,
-    SYNTAX_ERROR,
-    RUNTIME_ERR
+    RUNTIME_ERR,
+//    SYNTAX_ERROR
 };
 
 enum {UNDEFINED = -INT32_MAX};
@@ -71,7 +71,9 @@ extern std::map <std::string, int> Ftable;
 extern std::map <std::string, std::unordered_map <std::string, int>> FstartVars;
 extern std::map <std::string, int> Labels;
 extern std::stack <int> RetAddr;
-
+extern std::stack<std::unordered_map <std::string, int>> LocTables;
+extern std::stack<std::string> tabStack;
+extern int output_lvl;
 //explicit std::;
 class Lexem {
     LEXEMTYPE type;
@@ -235,6 +237,7 @@ public:
     }
 };
 
+void print_VarTables();
 void print(std::vector <Lexem *>);
 
 void print_all(std::vector <std::vector <Lexem *>>);
@@ -242,6 +245,8 @@ void print_all(std::vector <std::vector <Lexem *>>);
 void print_map(std::unordered_map <std::string, int> &);
 
 void del(std::vector <Lexem *>);
+
+void setOutputSettings(int, char **);
 
 Lexem *get_number(std::string codeline, std::string::iterator &);
 
