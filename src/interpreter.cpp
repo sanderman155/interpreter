@@ -63,12 +63,12 @@ std::map <std::string, int> Ftable;
 std::map <std::string, std::unordered_map <std::string, int>> FstartVars;
 std::map <std::string, int> Labels;
 std::stack <int> RetAddr;
-std::stack<std::unordered_map <std::string, int>> LocTables;
+std::stack<std::unordered_map <std::string, int>> LocTables; //???
 std::stack<std::string> tabStack;
 int output_lvl;
 
 Oper::Oper(int n) {
-        setType(OPERATION);
+        setType(OPERATION); //tab
         out = OPERTEXT[n];
         opertype = (OPERATOR)n;
 }
@@ -107,7 +107,7 @@ void Goto::print() {
     std::cout << "[" << OPERTEXT[operation] << " -> " << "row = " << row << "]";
 }
 
-int Foo::getRow() {
+int Foo::getRow() { //Foo ???
     if (Ftable.find(name) != Ftable.end()) {
         return Ftable[name];
     } else {
@@ -115,7 +115,7 @@ int Foo::getRow() {
     }
 }
 
-void print_VarTables() {
+void print_VarTables() { //case print_var_tables() VarTable
     while(!LocTables.empty()) {
         tab = tabStack.top();
         tabStack.pop();
@@ -125,7 +125,7 @@ void print_VarTables() {
     }
 }
 
-void print(std::vector <Lexem *> array) {
+void print(std::vector <Lexem *> array) { //print_lexem_array()
     for (auto ptr: array) {
         if (ptr == nullptr) {
             continue;
@@ -140,7 +140,7 @@ void print(std::vector <Lexem *> array) {
     std::cout << std::endl;
 }
 
-void print_all(std::vector <std::vector <Lexem *>> matrix) {
+void print_all(std::vector <std::vector <Lexem *>> matrix) { // print_lexem_arrays()
     for (int free = 0; free < (int)matrix.size(); free++) {
         std::cout << free << ": ";
         print(matrix[free]);
@@ -151,17 +151,17 @@ void print_all(std::vector <std::vector <Lexem *>> matrix) {
 void print_map(std::unordered_map <std::string, int> &VarTable) {
     for(std::unordered_map<std::string,int>::iterator it = VarTable.begin();
     it != VarTable.end(); it++) {
-        std::cout << tab << it -> first << " = " << it -> second << std::endl;
+        std::cout << tab << it -> first << " = " << it -> second << std::endl; //it->first
     }
 }
 
-void del(std::vector <Lexem *> v) {
+void del(std::vector <Lexem *> v) { //clear_vector
     for(auto ptr: v) {
         delete ptr;
     }
 }
 
-void setOutputSettings(int argc, char **argv) {
+void setOutputSettings(int argc, char **argv) { //set_output...
     int i;
     for(i = 0; i < argc; i++) {
         std::string check = std::string(argv[i]);
@@ -180,7 +180,7 @@ void setOutputSettings(int argc, char **argv) {
         throw(ERR_WITH_START_PROGRAM);
     }
 }
-Lexem *get_number(std::string codeline, std::string::iterator &ptr) {
+Lexem *get_number(std::string codeline, std::string::iterator &ptr) { 
     if(!isdigit(*ptr) || isspace(*ptr)) {
         return nullptr;
     }
@@ -255,7 +255,7 @@ Lexem *get_label(std::string codeline, std::string::iterator &ptr) {
     return var;
 }
 
-std::vector <Lexem *> parseLexem(std::string codeline) {
+std::vector <Lexem *> parseLexem(std::string codeline) { //parse_lexem()
     std::string var;
     Lexem *ptr;
     std::vector <Lexem *> infix;
@@ -331,7 +331,7 @@ std::vector <Lexem *> parseLexem(std::string codeline) {
     return infix;
 }
 
-void initLabels(std::vector<Lexem *> &infix, int row) {
+void initLabels(std::vector<Lexem *> &infix, int row) { //init_labels
     for (int i = 1; i < (int)infix.size(); i++) {
         if(infix[i - 1] == nullptr) {
             continue;
@@ -353,7 +353,7 @@ void initLabels(std::vector<Lexem *> &infix, int row) {
     }
 }
 
-void initjumps(std::vector<std::vector <Lexem *>> &infixLines) {
+void initjumps(std::vector<std::vector <Lexem *>> &infixLines) { //init_jumps
     std::stack <Goto *> stackIfElse;
     for (int row = 0; row < (int)infixLines.size(); row++) {
         for (int i = 0; i < (int)infixLines[row].size(); i++) {
@@ -486,7 +486,7 @@ void initjumps(std::vector<std::vector <Lexem *>> &infixLines) {
     }
 }
 
-void joinGotoandLabel(Label *label, std::vector<Lexem *> &postfix) {
+void joinGotoandLabel(Label *label, std::vector<Lexem *> &postfix) { //join_goto_and_label()
     if (((Oper *)postfix.back()) -> get_type() == GOTO) {
         Goto *lexemgoto = (Goto *)postfix.back();
         lexemgoto -> setRow(label -> getName());
@@ -576,7 +576,7 @@ std::vector <Lexem *> buildPostfix(std::vector<Lexem *> inf) {
 };
 
 Lexem* do_op(Lexem* left, Lexem* right, Lexem* operation,
-            std::unordered_map <std::string, int> &LocalVarTable) {
+            std::unordered_map <std::string, int> &LocalVarTable) { //apply_operation
     OPERATOR opertype = ((Oper *)operation) -> get_type();
     int value = 0, l = 0, r = 0;
     Lexem *val;
