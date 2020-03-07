@@ -78,7 +78,7 @@ extern int output_lvl;
 class Lexem {
     LEXEMTYPE type;
 public:
-    Lexem() {
+    Lexem() {  // only prototype
         type = NONE;
     }
     virtual ~Lexem() {};
