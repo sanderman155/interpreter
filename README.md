@@ -5,6 +5,7 @@ In this semester work I writed a program, which can execute code in my own simpl
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+
 1.**Compile library by using makefile**
 
 ```
