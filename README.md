@@ -6,22 +6,22 @@ In this semester work I writed a program, which can execute code in my own simpl
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-1.**Compile library by using makefile**
+  1.**Compile library by using makefile**
 
-```
-make interpreter
-```
-2. **Change library path to work with this library**
+  ```
+  make interpreter
+  ```
+  2. **Change library path to work with this library**
 
-```
-export LiBRARY_PATH=$(pwd)/lib
-```
-3. **Compile program which will use this library**(in my case, that program was named as "main")
+  ```
+  export LiBRARY_PATH=$(pwd)/lib
+  ```
+  3. **Compile program which will use this library**(in my case, that program was named as "main")
 
-```
-make main
-```
-4.**Run program**
-```
-bin/main
-```
+  ```
+  make main
+  ```
+  4.**Run program**
+  ```
+  bin/main
+  ```
