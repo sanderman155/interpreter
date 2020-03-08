@@ -12,6 +12,7 @@ enddef
 
 def main()
     n := 5
-    ans := fib(n)
+    ans1 := fib(n)
+    ans2 := fib(2 + 2)
     ret
 enddef

@@ -8,7 +8,7 @@
 #include <locale>
 #include <map>
 #include <unordered_map>
-
+#include <queue>
 enum ERRORS {
     ERR_WITH_START_PROGRAM,
     ERR_UNDEFINED_OPERATOR,
@@ -17,7 +17,7 @@ enum ERRORS {
     ERR_NOT_BALANCED_BRACKETS,
     ERR_NOT_BALANCED_CONDITIONAL_OPERATORS,
     ERR_NAME_FUNCTION,
-    ERR_FOO_START_VARS,
+    ERR_FUNCTION_START_VARS,
     ERR_UNDEFINED_FUNCTION,
     ERR_WITH_CONDITIONAL_OPERATORS,
     ERR_WITH_START,
@@ -71,25 +71,20 @@ extern std::map <std::string, int> Ftable;
 extern std::map <std::string, std::unordered_map <std::string, int>> FstartVars;
 extern std::map <std::string, int> Labels;
 extern std::stack <int> RetAddr;
-extern std::stack<std::unordered_map <std::string, int>> LocTables;
-extern std::stack<std::string> tabStack;
-extern int output_lvl;
-//explicit std::;
+extern std::stack <std::unordered_map <std::string, int>> LocTables;
+extern std::stack <std::string> tabStack;
+extern std::queue <int> QofFunctios;
+extern int OutputLvl;
+extern int SerialNumberOfFunction;
+
 class Lexem {
     LEXEMTYPE type;
 public:
-    Lexem() {  // only prototype
-        type = NONE;
-    }
+    Lexem();
     virtual ~Lexem() {};
-    virtual void print() {
-    }
-    LEXEMTYPE getType() {
-        return type;
-    }
-    void setType(LEXEMTYPE t) {
-        type = t;
-    }
+    virtual void print() {};
+    LEXEMTYPE getType();
+    void setType(LEXEMTYPE);
 };
 
 class Number: public Lexem {
@@ -97,16 +92,9 @@ class Number: public Lexem {
 public:
     Number() {};
     ~Number() {};
-    Number(int val) {
-        setType(NUMBER);
-        value = val;
-    }
-    virtual int getValue() {
-        return value;
-    }
-    void print() {
-        std::cout << "[" << value << "]";
-    }
+    Number(int);
+    int getValue();
+    void print();
 };
 
 class Oper: public Lexem {
@@ -115,13 +103,9 @@ class Oper: public Lexem {
 public:
     Oper() {}
     ~Oper() {}
-    Oper(int n);
-    void print() {
-        std::cout << "["<< out << "]";
-    }
-    OPERATOR get_type() {
-        return opertype;
-    }
+    Oper(int);
+    void print();
+    OPERATOR get_type();
     int getPriority();
 };
 
@@ -131,45 +115,23 @@ class Variable: public Lexem {
     std::string name;
 public:
     Variable() {}
-    Variable(std::string n) {
-        name = n;
-        setType(VARIABLE);
-    }
+    Variable(std::string);
     Variable(std::string, int);
-    bool exist(std::unordered_map <std::string, int> VarTable) {
-        if(VarTable.find(name) == VarTable.end()) {
-            return false;
-        }
-        return true;
-    }
+    bool exist(std::unordered_map <std::string, int>);
     void initVar();
-    void setValue(int v, std::unordered_map <std::string , int> &VarTable) {
-        value = v;
-        VarTable[name] = value;
-    }
-    std::string getName() {
-        return name;
-    }
+    void setValue(int, std::unordered_map <std::string , int> &);
+    std::string getName();
     int getValue(std::unordered_map <std::string, int>);
-    void print() {
-        std::cout << "[" << name << "]";
-    }
+    void print();
 };
 
 class Boolean: public Number {
     bool bit;
 public:
     Boolean() {}
-    Boolean(bool ans) {
-        setType(BOOLEAN);
-        bit = ans;
-    }
-    void print() {
-        std::cout << "[" << bit << "]";
-    }
-    int getValue() {
-        return bit;
-    }
+    Boolean(bool);
+    void print();
+    int getValue();
 };
 
 class Label: public Lexem {
@@ -177,16 +139,9 @@ class Label: public Lexem {
     std::string name;
 public:
     Label() {}
-    Label(std::string name) {
-        Label::name = name;
-        setType(LABEL);
-    }
-    std::string getName() {
-        return name;
-    }
-    void print() {
-        std::cout << "["<< name << "]";
-    }
+    Label(std::string);
+    std::string getName();
+    void print();
 };
 
 class Goto: public Oper {
@@ -194,59 +149,38 @@ class Goto: public Oper {
     int operation;
 public:
     Goto() {}
-    Goto(int operation): Oper(operation) {
-        row  = UNDEFINED;
-        Goto::operation = operation;
-    }
-    void setRow(int row) {
-        Goto::row = row;
-    }
+    Goto(int);
+    void setRow(int);
     void setRow(const std::string &);
-    int getRow() {
-        return row;
-    }
+    int getRow();
     void print();
 };
 
 
-class Foo: public Goto {
+class Function: public Goto {
     std::string name;
     int startVariables = 0;
 public:
-    Foo(std::string name, int row, int startVars) {
-        Foo::name = name;
-        startVariables = startVars;
-        ((Goto *)this) -> setRow(row);
-        setType(FUNCTION);
-    }
-    void setName(std::string name) {
-        Foo::name = name;
-    }
-    std::string getName() {
-        return name;
-    }
-    void setRow(int row) {
-        ((Goto *)this) -> setRow(row);
-    }
+    Function(std::string, int, int);
+    void setName(std::string);
+    std::string getName();
+    void setRow(int);
     int getRow();
-    int getNumStartVars() {
-        return startVariables;
-    }
-    void print() {
-        std::cout << "[" << name << "-> " << ((Goto *)this) -> getRow() << "]";
-    }
+    int getNumStartVars();
+    void print();
 };
 
-void print_VarTables();
-void print(std::vector <Lexem *>);
+void print_var_tables();
 
-void print_all(std::vector <std::vector <Lexem *>>);
+void print_lexem_arrays(std::vector <Lexem *>);
+
+void print_lexem_arrays(std::vector <std::vector <Lexem *>>);
 
 void print_map(std::unordered_map <std::string, int> &);
 
-void del(std::vector <Lexem *>);
+void clear_vector(std::vector <Lexem *>);
 
-void setOutputSettings(int, char **);
+void set_output_settings(int, char **);
 
 Lexem *get_number(std::string codeline, std::string::iterator &);
 
@@ -256,20 +190,20 @@ Lexem *get_variable(std::string, std::string::iterator &);
 
 Lexem *get_label(std::string, std::string::iterator &);
 
-std::vector <Lexem *> parseLexem(std::string);
+std::vector <Lexem *> parse_lexem(std::string);
 
-void initLabels(std::vector<Lexem *> &, int);
+void init_labels(std::vector<Lexem *> &, int);
 
-void initjumps(std::vector<std::vector <Lexem *>> &);
+void init_jumps(std::vector<std::vector <Lexem *>> &);
 
-void joinGotoandLabel(Label *, std::vector<Lexem *> &);
+void join_goto_and_label(Label *, std::vector<Lexem *> &);
 
-std::vector <Lexem *> buildPostfix(std::vector<Lexem *>);
+std::vector <Lexem *> build_postfix(std::vector<Lexem *>);
 
-Lexem* do_op(Lexem*, Lexem*, Lexem*, std::unordered_map <std::string, int> &);
+Lexem* apply_operation(Lexem*, Lexem*, Lexem*, std::unordered_map <std::string, int> &);
 
-int evaluatePostfix(std::vector <std::vector <Lexem *>>, int, int &, bool &, std::unordered_map<std::string, int> &);
+int evaluate_postfix(std::vector <std::vector <Lexem *>>, int, int &, bool &, std::unordered_map<std::string, int> &);
 
-void initGlobalVarTable(std::vector <std::vector < Lexem *>>);
+void init_global_var_table(std::vector <std::vector < Lexem *>>);
 
 #endif

@@ -8,42 +8,42 @@ int main(int argc, char **argv) {
         if (argc < 4) {
             throw(ERR_WITH_START_PROGRAM);
         }
-        setOutputSettings(argc, argv);
+        set_output_settings(argc, argv);
         while (getline(std::cin, codeline) && codeline != "quit")
-            infixLines.push_back(parseLexem(codeline));
-        initGlobalVarTable(infixLines);
-        initjumps(infixLines);
+            infixLines.push_back(parse_lexem(codeline));
+        init_global_var_table(infixLines);
+        init_jumps(infixLines);
         for (int row = 0; row < (int)infixLines.size(); row++)
-            initLabels(infixLines[row], row);
+            init_labels(infixLines[row], row);
         for (auto infix: infixLines)
-            postfixLines.push_back(buildPostfix(infix));
+            postfixLines.push_back(build_postfix(infix));
         if (Ftable.find("main") == Ftable.end()) {
             throw(ERR_WITH_START);
         }
         int row = Ftable["main"], value;
         bool ret = false;
         while (0 <= row && row < (int)postfixLines.size()) {
-            row = evaluatePostfix(postfixLines, row, value, ret, GlobalVarTable);
+            row = evaluate_postfix(postfixLines, row, value, ret, GlobalVarTable);
         }
-        if (output_lvl >= 1) {
-            print_all(postfixLines);
+        if (OutputLvl >= 1) {
+            print_lexem_arrays(postfixLines);
             std::cout << std::endl;
         }
-        if (output_lvl >= 2) {
-            print_all(infixLines);
+        if (OutputLvl >= 2) {
+            print_lexem_arrays(infixLines);
             std::cout << std::endl;
-            if (output_lvl == 4) {
-                print_VarTables();
+            if (OutputLvl == 4) {
+                print_var_tables();
             }
-            std::cout << std::endl << "Финальная таблица переменных" << std::endl;;
+            std::cout << std::endl << "Global Variables Table" << std::endl;;
             print_map(GlobalVarTable);
         }
         for (int free = 0; free < (int)infixLines.size(); free++)
-            del(infixLines[free]);
+            clear_vector(infixLines[free]);
     } catch (ERRORS e) {
         std::cerr << ERRORTEXT[int(e)] << std::endl;
         for (int free = 0; free < (int)infixLines.size(); free++)
-            del(infixLines[free]);
+            clear_vector(infixLines[free]);
     }
     return 0;
 }
