@@ -11,10 +11,14 @@ These instructions will get you a copy of the project up and running on your loc
   ```
   make interpreter
   ```
+  2. **Change your directory**  
+  ```
+  cd interpreter/
+  ```
   2. **Change library path to work with this library**
 
   ```
-  export LIBRARY_PATH=$(pwd)/lib
+  export LD_LIBRARY_PATH=$(pwd)/lib
   ```
   3. **Compile program which will use this library**(in my case, that program was named as "main")
 
