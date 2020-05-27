@@ -1,7 +1,7 @@
 #include "interpreter.hpp"
 
 std::string ERRORTEXT[] = {
-    "incorrect start of the program",
+    "incorrect start of the program. Execution example: bin/main output = 3",
     "entered unexisted operator",
     "error with label",
     "need to be alternation between operator and Variables or Numbers",
