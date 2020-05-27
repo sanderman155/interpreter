@@ -15,17 +15,17 @@ These instructions will get you a copy of the project up and running on your loc
   ```
   cd interpreter/
   ```
-  2. **Change library path to work with this library**
+  3. **Change library path to work with this library**
 
   ```
   export LD_LIBRARY_PATH=$(pwd)/lib
   ```
-  3. **Compile program which will use this library**(in my case, that program was named as "main")
+  4. **Compile program which will use this library**(in my case, that program was named as "main")
 
   ```
   make main
   ```
-  4. **Run program**
+  5. **Run program**
   ```
   bin/main
   ```
