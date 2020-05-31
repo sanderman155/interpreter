@@ -1,8 +1,8 @@
-# Interpreter
+# INTERPRETER
 
 In this semester work I writed a program, which can execute code in my own simple programming language. The main part of program is my library named as "libinterpreter.so". My programming language have some similar part to the Python and C++. For example, if you want declarated function? you nedd to start with the servise word "def" and program starts with function main.
 
-## Getting Started
+## GETTING STARTED
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
